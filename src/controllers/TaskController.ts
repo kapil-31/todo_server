@@ -3,7 +3,7 @@ import { asyncHandler } from '../middleware/asyncHandler'
 import { JSONResponse } from '../helpers/helpers'
 import ErrorResponse from '../utils/error_handler'
 import CrudServices from '../services/CrudServices'
-import mongoose from 'mongoose'
+import moment from 'moment'
 
 export default class TaskController {
   json_res: JSONResponse = new JSONResponse()
@@ -115,21 +115,39 @@ export default class TaskController {
     } = req.body
 
     try {
+      console.log(destinationSectionId, resourceList)
+      console.log({
+        resourceList,
+        destinationList,
+      })
       if (resourceSectionId !== destinationSectionId) {
-        const objToUpdate = resourceList.map((item: any, key: number) => ({
+        console.log(resourceSectionId, destinationSectionId)
+        const objToUpdate = destinationList.map((item: any, key: number) => ({
           updateOne: {
             filter: { _id: item._id },
-            update: { name: item.name, position: key },
+            update: {
+              name: item.name,
+              board: destinationSectionId,
+              completedAt: new Date(),
+              position: key,
+            },
           },
         }))
         await this.CrudServices.bulWrite(objToUpdate)
       }
-      const objToUpdate = destinationList.map((item: any, key: number) => ({
-        updateOne: {
-          filter: { _id: item._id },
-          update: { name: item.name, position: key },
-        },
-      }))
+      const objToUpdate = resourceList
+        .reverse()
+        .map((item: any, key: number) => ({
+          updateOne: {
+            filter: { _id: item._id },
+            update: {
+              name: item.name,
+              board: resourceSectionId,
+              completedAt: null,
+              position: key,
+            },
+          },
+        }))
       await this.CrudServices.bulWrite(objToUpdate)
       return res.send('success')
     } catch (e) {

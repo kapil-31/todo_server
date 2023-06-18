@@ -1,4 +1,4 @@
-import mongoose, { Document, Query, QueryOptions, Types } from 'mongoose'
+import mongoose, { Date, Document, Query, QueryOptions, Types } from 'mongoose'
 import { BoardBaseDocument } from './board'
 
 const Todo = new mongoose.Schema<TodoBaseModel, ITodoModel>(
@@ -15,6 +15,9 @@ const Todo = new mongoose.Schema<TodoBaseModel, ITodoModel>(
       type: Number,
       required: true,
     },
+    completedAt: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -28,6 +31,7 @@ export interface ITodoModel {
   content: string
   board: Types.ObjectId | Record<string, unknown>
   position: number
+  completedAt: Date
 }
 
 export interface TodoBaseModel extends ITodoModel, Document {

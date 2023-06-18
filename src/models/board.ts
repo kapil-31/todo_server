@@ -1,5 +1,6 @@
 import mongoose, { Document } from 'mongoose'
 import { schemaOptions } from './modelOptions'
+import { Todos } from './todos'
 
 const BoardSchema = new mongoose.Schema<BoardBaseDocument, IBoardModel>(
   {
@@ -15,30 +16,18 @@ const BoardSchema = new mongoose.Schema<BoardBaseDocument, IBoardModel>(
 )
 //@ts-ignore
 
-BoardSchema.pre('deleteOne', { document: true, query: false }, (next) => {
-  //@ts-ignore
-  const id = this._id
-  console.log('this', id)
-  //@ts-ignore
-
-  const _id = this.getQuery()['_id']
-  console.log(_id)
-  mongoose
-    .model('todos')
-    .deleteMany({ board: _id }, (err: any, result: any) => {
-      if (err) {
-        console.log(`[err] {err}`)
-        next(err)
-      } else {
-        next()
-      }
-    })
-})
-export default mongoose.model('boards', BoardSchema)
-
+BoardSchema.pre(
+  'deleteOne',
+  { document: false, query: true },
+  async function () {
+    const doc = await this.model.findOne(this.getFilter())
+    await Todos.deleteMany({ board: doc._id })
+  }
+)
 export interface IBoardModel {
   name: string
   position: number
 }
 
 export interface BoardBaseDocument extends IBoardModel, Document {}
+export default mongoose.model('boards', BoardSchema)

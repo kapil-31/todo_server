@@ -1,6 +1,6 @@
 export default class CrudServices {
   model: any
-  constructor(model: any) {
+  constructor(model?: any) {
     this.model = model
   }
   get = async (query: any) => await this.model.find(query).sort('position')

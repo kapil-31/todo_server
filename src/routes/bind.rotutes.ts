@@ -13,7 +13,7 @@ export const bindRoute = function (
     // @ts-ignore
     router[route.method](route.url, middleware, route.handler)
   })
-  app.use('/api/v1/' + baseUrl, router)
+  app.use(baseUrl, router)
 }
 
 export interface IRouteType {
