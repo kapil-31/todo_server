@@ -8,10 +8,15 @@ const BoardSchema = new mongoose.Schema<BoardBaseDocument, IBoardModel>(
       type: String,
       required: true,
     },
+    status: {
+      type: String,
+      required: true,
+    },
     position: {
       type: Number,
     },
   },
+
   schemaOptions
 )
 //@ts-ignore
@@ -27,6 +32,7 @@ BoardSchema.pre(
 export interface IBoardModel {
   name: string
   position: number
+  status: string
 }
 
 export interface BoardBaseDocument extends IBoardModel, Document {}

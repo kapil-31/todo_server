@@ -4,13 +4,16 @@ import { JSONResponse } from '../helpers/helpers'
 import ErrorResponse from '../utils/error_handler'
 import CrudServices from '../services/CrudServices'
 import moment from 'moment'
+import Board from '../models/board'
 
 export default class TaskController {
   json_res: JSONResponse = new JSONResponse()
   CrudServices: CrudServices = new CrudServices(Todos)
+  BoardCrudServices: CrudServices = new CrudServices(Board)
   __constructor() {
     this.json_res = new JSONResponse()
     this.CrudServices = new CrudServices(Todos)
+    this.BoardCrudServices = new CrudServices(Board)
   }
 
   create = asyncHandler(async (req, res, next) => {
@@ -113,41 +116,40 @@ export default class TaskController {
       resourceSectionId,
       destinationSectionId,
     } = req.body
-
+    let objToUpdate = {}
     try {
-      console.log(destinationSectionId, resourceList)
-      console.log({
-        resourceList,
-        destinationList,
-      })
       if (resourceSectionId !== destinationSectionId) {
-        console.log(resourceSectionId, destinationSectionId)
-        const objToUpdate = destinationList.map((item: any, key: number) => ({
+        let board = await this.BoardCrudServices.get({
+          _id: destinationSectionId,
+        })
+        let completedAt: any = null
+        if (board.length) {
+          board = board[0]
+          completedAt =
+            board.name.toLowerCase() === 'completed' ? new Date() : null
+        }
+        objToUpdate = destinationList.map((item: any, key: number) => ({
           updateOne: {
             filter: { _id: item._id },
             update: {
-              name: item.name,
               board: destinationSectionId,
-              completedAt: new Date(),
+              completedAt,
               position: key,
             },
           },
         }))
-        await this.CrudServices.bulWrite(objToUpdate)
-      }
-      const objToUpdate = resourceList
-        .reverse()
-        .map((item: any, key: number) => ({
+      } else {
+        objToUpdate = resourceList.reverse().map((item: any, key: number) => ({
           updateOne: {
             filter: { _id: item._id },
             update: {
-              name: item.name,
               board: resourceSectionId,
-              completedAt: null,
               position: key,
             },
           },
         }))
+      }
+
       await this.CrudServices.bulWrite(objToUpdate)
       return res.send('success')
     } catch (e) {

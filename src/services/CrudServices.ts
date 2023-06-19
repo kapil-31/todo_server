@@ -3,7 +3,7 @@ export default class CrudServices {
   constructor(model?: any) {
     this.model = model
   }
-  get = async (query: any) => await this.model.find(query).sort('position')
+  get = async (query?: any) => await this.model.find(query).sort('position')
   updateOne = async (updatedFields: {
     filterQuery: any
     updateQuery: any
@@ -26,6 +26,14 @@ export default class CrudServices {
   create = async (payload: any) => {
     try {
       let result = await this.model.create(payload)
+      return result
+    } catch (e) {
+      throw e
+    }
+  }
+  insertMany = async (payload: any) => {
+    try {
+      let result = await this.model.insertMany(payload)
       return result
     } catch (e) {
       throw e

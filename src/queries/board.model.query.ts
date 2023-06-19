@@ -36,6 +36,7 @@ export class BoardModelQuery {
     {
       $sort: { position: 1 },
     },
+
     {
       $project: {
         _id: 1,

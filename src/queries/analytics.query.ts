@@ -3,40 +3,42 @@ import moment from 'moment'
 export default class AnalayticsQuery {
   getAnalytiscc = () => [
     {
-      $lookup: {
-        from: 'todos',
-        foreignField: 'board',
-        localField: '_id',
-        as: 'cards',
-      },
-    },
-    {
-      $unwind: { path: '$cards', preserveNullAndEmptyArrays: true },
-    },
-    {
-      $match: {
-        'cards.completedAt': {
-          $gt: new Date(moment().startOf('day').toDate()),
-          $lt: new Date(),
-        },
-      },
-    },
-    {
       $group: {
-        _id: '$_id',
-        name: { $first: '$name' },
-        cards: {
-          $push: '$cards',
+        _id: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$createdAt',
+          },
+        },
+        list: {
+          $push: '$$ROOT',
+        },
+        completedTaskCount: {
+          $sum: {
+            $cond: {
+              if: {
+                $ne: ['$completedAt', null],
+              },
+              then: 1,
+              else: 0,
+            },
+          },
+        },
+        notCompletedTaskCount: {
+          $sum: {
+            $cond: {
+              if: {
+                $eq: ['$completedAt', null],
+              },
+              then: 1,
+              else: 0,
+            },
+          },
+        },
+        totalTaskCount: {
+          $sum: 1,
         },
       },
     },
-    // {
-    //   $project: {
-    //     name: 1,
-    //     count: {
-    //       $size: '$cards',
-    //     },
-    //   },
-    // },
   ]
 }

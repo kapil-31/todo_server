@@ -37,3 +37,5 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
 }
 export const isObjectId = (value: string | number) =>
   mongoose.Types.ObjectId.isValid(value)
+
+export const removeWhitSpace = (val: string) => val.replace(/\s/, '')
